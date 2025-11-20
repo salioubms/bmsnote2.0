@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bms Note : Tableau Intelligent de Suivi Scolaire</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #2ecc71;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #555;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 1200px;
+        }
+
+        thead {
+            background: #333;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        th {
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: 600;
+            border: 1px solid #555;
+            white-space: nowrap;
+        }
+        
+        .section-header {
+            background: #666 !important;
+            font-weight: bold;
+        }
+
+        td {
+            padding: 10px 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        tbody tr:nth-child(odd) {
+            background-color: #f8f9fa;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #ffffff;
+        }
+
+        tbody tr:hover {
+            background-color: #e8f5e9;
+            transition: background-color 0.3s ease;
+        }
+
+        .matiere {
+            text-align: left;
+            font-weight: 600;
+            color: #2c3e50;
+            background-color: #ecf0f1 !important;
+        }
+
+        input {
+            width: 60px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #2ecc71;
+            box-shadow: 0 0 5px rgba(46, 204, 113, 0.3);
+        }
+
+        .moyenne, .coefficient, .total {
+            background-color: #fff9c4 !important;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .summary {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #333 0%, #555 100%);
+            color: white;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .summary h2 {
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .summary-item {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        .summary-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .summary-value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-left: 4px solid #2ecc71;
+            border-radius: 4px;
+        }
+
+        .legend h3 {
+            color: #2ecc71;
+            margin-bottom: 10px;
+        }
+
+        .legend p {
+            margin: 5px 0;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎓 Bms Note</h1>
+        <p class="subtitle">Tableau Intelligent de Suivi Scolaire - Terminale D</p>
+
+        <div class="table-wrapper">
+            <table id="notesTable">
+                <thead>
+                    <tr>
+                        <th rowspan="2">Matière</th>
+                        <th colspan="6" class="section-header">Interrogations</th>
+                        <th colspan="4" class="section-header">Devoirs</th>
+                        <th rowspan="2">Moyenne</th>
+                        <th rowspan="2">Coefficient</th>
+                        <th rowspan="2">Total Points</th>
+                    </tr>
+                    <tr>
+                        <th>Interro 1</th>
+                        <th>Interro 2</th>
+                        <th>Interro 3</th>
+                        <th>Interro 4</th>
+                        <th>Interro 5</th>
+                        <th>Interro 6</th>
+                        <th>Devoir 1</th>
+                        <th>Devoir 2</th>
+                        <th>Devoir 3</th>
+                        <th>Devoir 4</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Mathématiques -->
+                    <tr data-coeff="4">
+                        <td class="matiere">Mathématiques</td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="devoir"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="devoir"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="devoir"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="devoir"></td>
+                        <td class="moyenne">-</td>
+                        <td class="coefficient">4</td>
+                        <td class="total">-</td>
+                    </tr>
+
+                    <!-- SVT -->
+                    <tr data-coeff="4">
+                        <td class="matiere">SVT</td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="devoir"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="devoir"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="devoir"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="devoir"></td>
+                        <td class="moyenne">-</td>
+                        <td class="coefficient">4</td>
+                        <td class="total">-</td>
+                    </tr>
+
+                    <!-- Physique-Chimie -->
+                    <tr data-coeff="4">
+                        <td class="matiere">Physique-Chimie</td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="devoir"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="devoir"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="devoir"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="devoir"></td>
+                        <td class="moyenne">-</td>
+                        <td class="coefficient">4</td>
+                        <td class="total">-</td>
+                    </tr>
+
+                    <!-- Français -->
+                    <tr data-coeff="3">
+                        <td class="matiere">Français</td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="devoir"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="devoir"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="devoir"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="devoir"></td>
+                        <td class="moyenne">-</td>
+                        <td class="coefficient">3</td>
+                        <td class="total">-</td>
+                    </tr>
+
+                    <!-- Philosophie -->
+                    <tr data-coeff="2">
+                        <td class="matiere">Philosophie</td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="devoir"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="devoir"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="devoir"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="devoir"></td>
+                        <td class="moyenne">-</td>
+                        <td class="coefficient">2</td>
+                        <td class="total">-</td>
+                    </tr>
+
+                    <!-- Histoire-Géographie -->
+                    <tr data-coeff="2">
+                        <td class="matiere">Histoire-Géographie</td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="devoir"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="devoir"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="devoir"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="devoir"></td>
+                        <td class="moyenne">-</td>
+                        <td class="coefficient">2</td>
+                        <td class="total">-</td>
+                    </tr>
+
+                    <!-- Anglais -->
+                    <tr data-coeff="2">
+                        <td class="matiere">Anglais</td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="devoir"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="devoir"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="devoir"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="devoir"></td>
+                        <td class="moyenne">-</td>
+                        <td class="coefficient">2</td>
+                        <td class="total">-</td>
+                    </tr>
+
+                    <!-- EPS -->
+                    <tr data-coeff="1" data-art="true">
+                        <td class="matiere">EPS</td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td class="moyenne">-</td>
+                        <td class="coefficient">1</td>
+                        <td class="total">-</td>
+                    </tr>
+
+                    <!-- AP/MUS -->
+                    <tr data-coeff="1" data-art="true">
+                        <td class="matiere">AP/MUS</td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td><input type="number" step="0.25" min="0" max="20" class="interro"></td>
+                        <td class="moyenne">-</td>
+                        <td class="coefficient">1</td>
+                        <td class="total">-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="summary">
+            <h2>📊 Résumé Général</h2>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-label">Total Points</div>
+                    <div class="summary-value" id="totalPoints">0.00</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Total Coefficients</div>
+                    <div class="summary-value" id="totalCoeffs">24</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Moyenne Générale</div>
+                    <div class="summary-value" id="moyenneGenerale">0.00</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <h3>📋 Système de Coefficients</h3>
+            <p><strong>Interrogations :</strong> Coefficient 1 (sauf AP/MUS et EPS)</p>
+            <p><strong>Devoirs :</strong> Coefficient 2 (sauf AP/MUS et EPS)</p>
+            <p><strong>AP/MUS et EPS :</strong> Toutes évaluations = Coefficient 1</p>
+            <p style="margin-top: 10px; font-style: italic;">Les moyennes sont calculées automatiquement à chaque saisie de note.</p>
+        </div>
+    </div>
+
+    <script>
+        const table = document.getElementById('notesTable');
+        const inputs = table.querySelectorAll('input');
+
+        function calculateRow(row) {
+            const isArt = row.dataset.art === 'true';
+            const coeff = parseInt(row.dataset.coeff);
+            
+            const interros = row.querySelectorAll('.interro');
+            const devoirs = row.querySelectorAll('.devoir');
+            
+            let totalPoints = 0;
+            let totalCoeffs = 0;
+            
+            // Calcul des interrogations
+            interros.forEach(input => {
+                const value = parseFloat(input.value);
+                if (!isNaN(value) && value >= 0) {
+                    totalPoints += value * 1; // Coeff 1 pour interrogations (ou Art)
+                    totalCoeffs += 1;
+                }
+            });
+            
+            // Calcul des devoirs (sauf pour Art plastique)
+            if (!isArt) {
+                devoirs.forEach(input => {
+                    const value = parseFloat(input.value);
+                    if (!isNaN(value) && value >= 0) {
+                        totalPoints += value * 2; // Coeff 2 pour devoirs
+                        totalCoeffs += 2;
+                    }
+                });
+            }
+            
+            const moyenne = totalCoeffs > 0 ? totalPoints / totalCoeffs : 0;
+            const totalMatiere = moyenne * coeff;
+            
+            const moyenneCell = row.querySelector('.moyenne');
+            const totalCell = row.querySelector('.total');
+            
+            moyenneCell.textContent = moyenne > 0 ? moyenne.toFixed(2) : '-';
+            totalCell.textContent = totalMatiere > 0 ? totalMatiere.toFixed(2) : '-';
+            
+            calculateGeneral();
+        }
+
+        function calculateGeneral() {
+            const rows = table.querySelectorAll('tbody tr');
+            let totalPoints = 0;
+            let totalCoeffs = 0;
+            
+            rows.forEach(row => {
+                const moyenneCell = row.querySelector('.moyenne');
+                const moyenne = parseFloat(moyenneCell.textContent);
+                const coeff = parseInt(row.dataset.coeff);
+                
+                if (!isNaN(moyenne) && moyenne > 0) {
+                    totalPoints += moyenne * coeff;
+                    totalCoeffs += coeff;
+                }
+            });
+            
+            const moyenneGenerale = totalCoeffs > 0 ? totalPoints / totalCoeffs : 0;
+            
+            document.getElementById('totalPoints').textContent = totalPoints.toFixed(2);
+            document.getElementById('totalCoeffs').textContent = totalCoeffs;
+            document.getElementById('moyenneGenerale').textContent = moyenneGenerale.toFixed(2);
+        }
+
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                const row = this.closest('tr');
+                calculateRow(row);
+            });
+        });
+    </script>
+</body>
+</html>
